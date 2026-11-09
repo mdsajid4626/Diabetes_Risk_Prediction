@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="EndoScan AI - Clinical Grade Machine Learning Diabetes Risk Prediction and Biomarker Screening Platform.">
+    <title>EndoScan AI • Clinical Diabetes Risk Assessment</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <!-- Background Glow & Grid Accents -->
+    <div class="ambient-glow ambient-glow-1" aria-hidden="true"></div>
+    <div class="ambient-glow ambient-glow-2" aria-hidden="true"></div>
+    <div class="grid-overlay" aria-hidden="true"></div>
+
+    <div class="app-layout">
+        <!-- Top Navigation Bar -->
+        <header class="top-nav">
+            <div class="nav-brand">
+                <div class="brand-badge">
+                    <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <div class="brand-title">EndoScan<span class="brand-accent">.AI</span></div>
+                    <div class="brand-subtitle">Metabolic Risk Screening System</div>
+                </div>
+            </div>
+
+            <div class="nav-status">
+                <div class="status-indicator">
+                    <span class="status-ping"></span>
+                    <span class="status-dot"></span>
+                    <span class="status-text">KNN Model Active (k=9)</span>
+                </div>
+            </div>
+
+            <div class="nav-actions">
+                <!-- Preset Profiles Dropdown / Buttons -->
+                <div class="presets-group">
+                    <span class="presets-label">Presets:</span>
+                    <button type="button" class="btn-preset" data-preset="healthy" id="presetHealthyBtn" title="Load healthy metabolic profile">
+                        <span class="preset-dot green"></span> Healthy
+                    </button>
+                    <button type="button" class="btn-preset" data-preset="borderline" id="presetBorderlineBtn" title="Load borderline risk profile">
+                        <span class="preset-dot amber"></span> Borderline
+                    </button>
+                    <button type="button" class="btn-preset" data-preset="highrisk" id="presetHighRiskBtn" title="Load high risk diabetic profile">
+                        <span class="preset-dot red"></span> High Risk
+                    </button>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- Info Modal Trigger -->
+                <button type="button" class="btn-icon" id="openInfoModalBtn" title="Model details & clinical info" aria-label="Model Info">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                </button>
+
+                <!-- Theme Toggle Button -->
+                <button type="button" class="btn-icon" id="themeToggleBtn" title="Toggle Dark/Light Mode" aria-label="Toggle Theme">
+                    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Workspace Container -->
+        <main class="dashboard-grid">
+            <!-- Left Column: Clinical Parameters Input Form -->
+            <section class="panel-inputs card">
+                <div class="panel-header">
+                    <div class="panel-title-wrap">
+                        <div class="panel-icon-badge">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                                <path d="M9 14h6"></path>
+                                <path d="M9 10h6"></path>
+                                <path d="M9 18h4"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="panel-title">Patient Biomarker Panel</h1>
+                            <p class="panel-subtitle">Configure clinical measurements or choose a preset profile</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-text" id="resetFormBtn" title="Reset all input fields">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="1 4 1 10 7 10"></polyline>
+                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                        </svg>
+                        Reset
+                    </button>
+                </div>
+
+                <form id="predictionForm" novalidate>
+                    <!-- Group 1: Glycemic & Metabolic -->
+                    <div class="param-section">
+                        <div class="section-badge">
+                            <span class="badge-num">1</span>
+                            <span class="badge-title">Glycemic & Metabolic Profile</span>
+                        </div>
+
+                        <div class="params-row">
+                            <!-- Glucose -->
+                            <div class="metric-card" id="field-Glucose-card">
+                                <div class="metric-header">
+                                    <label for="Glucose" class="metric-label">
+                                        <span class="metric-icon-small">🩸</span>
+                                        Plasma Glucose
+                                    </label>
+                                    <span class="range-badge" id="badge-Glucose">Normal</span>
+                                </div>
+                                <div class="metric-controls">
+                                    <input type="range" class="custom-range" id="Glucose-range" min="40" max="220" value="115" step="1">
+                                    <div class="input-unit-wrap">
+                                        <input type="number" id="Glucose" name="Glucose" class="metric-number-input" min="0" max="300" value="115" required>
+                                        <span class="unit-tag">mg/dL</span>
+                                    </div>
+                                </div>
+                                <div class="metric-footer">
+                                    <span class="clinical-range-hint">Normal: 70–99 • Pre-DM: 100–125 • DM: ≥126</span>
+                                </div>
+                            </div>
+
+                            <!-- Insulin -->
+                            <div class="metric-card" id="field-Insulin-card">
+                                <div class="metric-header">
+                                    <label for="Insulin" class="metric-label">
+                                        <span class="metric-icon-small">💉</span>
+                                        2-Hour Serum Insulin
+                                    </label>
+                                    <span class="range-badge" id="badge-Insulin">Normal</span>
+                                </div>
+                                <div class="metric-controls">
+                                    <input type="range" class="custom-range" id="Insulin-range" min="0" max="400" value="80" step="1">
+                                    <div class="input-unit-wrap">
+                                        <input type="number" id="Insulin" name="Insulin" class="metric-number-input" min="0" max="900" value="80" required>
+                                        <span class="unit-tag">µU/mL</span>
+                                    </div>
+                                </div>
+                                <div class="metric-footer">
+                                    <span class="clinical-range-hint">Normal reference: 16–166 µU/mL</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Group 2: Cardiovascular & Anthropometric -->
+                    <div class="param-section">
+                        <div class="section-badge">
+                            <span class="badge-num">2</span>
+                            <span class="badge-title">Cardiovascular & Body Composition</span>
+                        </div>
+
+                        <div class="params-row">
+                            <!-- Blood Pressure -->
+                            <div class="metric-card" id="field-BloodPressure-card">
+                                <div class="metric-header">
+                                    <label for="BloodPressure" class="metric-label">
+                                        <span class="metric-icon-small">❤️</span>
+                                        Diastolic Blood Pressure
+                                    </label>
+                                    <span class="range-badge" id="badge-BloodPressure">Normal</span>
+                                </div>
+                                <div class="metric-controls">
+                                    <input type="range" class="custom-range" id="BloodPressure-range" min="40" max="130" value="72" step="1">
+                                    <div class="input-unit-wrap">
+                                        <input type="number" id="BloodPressure" name="BloodPressure" class="metric-number-input" min="0" max="200" value="72" required>
+                                        <span class="unit-tag">mm Hg</span>
+                                    </div>
+                                </div>
+                                <div class="metric-footer">
+                                    <span class="clinical-range-hint">Optimal: &lt;80 • Stage 1: 80–89 • High: ≥90</span>
+                                </div>
+                            </div>
+
+                            <!-- BMI -->
+                            <div class="metric-card" id="field-BMI-card">
+                                <div class="metric-header">
+                                    <label for="BMI" class="metric-label">
+                                        <span class="metric-icon-small">⚖️</span>
+                                        Body Mass Index (BMI)
+                                    </label>
+                                    <span class="range-badge" id="badge-BMI">Healthy</span>
+                                </div>
+                                <div class="metric-controls">
+                                    <input type="range" class="custom-range" id="BMI-range" min="15" max="55" value="24.5" step="0.1">
+                                    <div class="input-unit-wrap">
+                                        <input type="number" id="BMI" name="BMI" class="metric-number-input" min="10" max="75" value="24.5" step="0.1" required>
+                                        <span class="unit-tag">kg/m²</span>
+                                    </div>
+                                </div>
+                                <div class="metric-footer">
+                                    <span class="clinical-range-hint">Normal: 18.5–24.9 • Overweight: 25–29.9 • Obese: ≥30</span>
+                                </div>
+                            </div>
+
+                            <!-- Skin Thickness -->
+                            <div class="metric-card" id="field-SkinThickness-card">
+                                <div class="metric-header">
+                                    <label for="SkinThickness" class="metric-label">
+                                        <span class="metric-icon-small">📏</span>
+                                        Triceps Skinfold
+                                    </label>
+                                    <span class="range-badge" id="badge-SkinThickness">Normal</span>
+                                </div>
+                                <div class="metric-controls">
+                                    <input type="range" class="custom-range" id="SkinThickness-range" min="0" max="70" value="22" step="1">
+                                    <div class="input-unit-wrap">
+                                        <input type="number" id="SkinThickness" name="SkinThickness" class="metric-number-input" min="0" max="100" value="22" required>
+                                        <span class="unit-tag">mm</span>
+                                    </div>
+                                </div>
+                                <div class="metric-footer">
+                                    <span class="clinical-range-hint">Subcutaneous body fat measure (normal 10–30mm)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Group 3: Demographics & Genetic Predisposition -->
+                    <div class="param-section">
+                        <div class="section-badge">
+                            <span class="badge-num">3</span>
+                            <span class="badge-title">Demographics & Genetic Heredity</span>
+                        </div>
+
+                        <div class="params-row">
+                            <!-- Age -->
+                            <div class="metric-card" id="field-Age-card">
+                                <div class="metric-header">
+                                    <label for="Age" class="metric-label">
+                                        <span class="metric-icon-small">🎂</span>
+                                        Patient Age
+                                    </label>
+                                    <span class="range-badge" id="badge-Age">Standard</span>
+                                </div>
+                                <div class="metric-controls">
+                                    <input type="range" class="custom-range" id="Age-range" min="20" max="85" value="32" step="1">
+                                    <div class="input-unit-wrap">
+                                        <input type="number" id="Age" name="Age" class="metric-number-input" min="1" max="120" value="32" required>
+                                        <span class="unit-tag">Years</span>
+                                    </div>
+                                </div>
+                                <div class="metric-footer">
+                                    <span class="clinical-range-hint">Screening benchmark cohort: 21–81 years</span>
+                                </div>
+                            </div>
+
+                            <!-- Pregnancies -->
+                            <div class="metric-card" id="field-Pregnancies-card">
+                                <div class="metric-header">
+                                    <label for="Pregnancies" class="metric-label">
+                                        <span class="metric-icon-small">🤰</span>
+                                        Pregnancies
+                                    </label>
+                                    <span class="range-badge" id="badge-Pregnancies">0</span>
+                                </div>
+                                <div class="metric-controls">
+                                    <input type="range" class="custom-range" id="Pregnancies-range" min="0" max="15" value="1" step="1">
+                                    <div class="input-unit-wrap">
+                                        <input type="number" id="Pregnancies" name="Pregnancies" class="metric-number-input" min="0" max="25" value="1" required>
+                                        <span class="unit-tag">Total</span>
+                                    </div>
+                                </div>
+                                <div class="metric-footer">
+                                    <span class="clinical-range-hint">Parity & gestational history</span>
+                                </div>
+                            </div>
+
+                            <!-- Diabetes Pedigree Function -->
+                            <div class="metric-card" id="field-DiabetesPedigreeFunction-card">
+                                <div class="metric-header">
+                                    <label for="DiabetesPedigreeFunction" class="metric-label">
+                                        <span class="metric-icon-small">🧬</span>
+                                        Pedigree Score (DPF)
+                                    </label>
+                                    <span class="range-badge" id="badge-DiabetesPedigreeFunction">Average</span>
+                                </div>
+                                <div class="metric-controls">
+                                    <input type="range" class="custom-range" id="DiabetesPedigreeFunction-range" min="0.05" max="2.0" value="0.38" step="0.01">
+                                    <div class="input-unit-wrap">
+                                        <input type="number" id="DiabetesPedigreeFunction" name="DiabetesPedigreeFunction" class="metric-number-input" min="0" max="3" value="0.38" step="0.001" required>
+                                        <span class="unit-tag">Score</span>
+                                    </div>
+                                </div>
+                                <div class="metric-footer">
+                                    <span class="clinical-range-hint">Family history genetic score (avg: 0.47, high: &gt;0.65)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button Container -->
+                    <div class="form-submit-wrap">
+                        <button type="submit" id="predictButton" class="btn-primary-evaluate">
+                            <span class="btn-glow"></span>
+                            <span class="btn-content">
+                                <svg class="btn-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                Run AI Risk Analysis
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Right Column: Real-time AI Risk Diagnostic Console -->
+            <section class="panel-results card" id="resultsSection">
+                <div class="results-header">
+                    <div class="results-header-title">
+                        <div class="pulse-indicator"></div>
+                        <h2>Diagnostic Assessment</h2>
+                    </div>
+                    <span class="timestamp-badge" id="assessmentTimestamp">Realtime Engine</span>
+                </div>
+
+                <!-- Initial Idle State -->
+                <div id="idleState" class="result-idle-state">
+                    <div class="idle-illustration">
+                        <div class="radar-circle"></div>
+                        <div class="radar-sweep"></div>
+                        <svg class="idle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                        </svg>
+                    </div>
+                    <h3 class="idle-title">Awaiting Biomarker Submission</h3>
+                    <p class="idle-desc">
+                        Adjust patient parameters on the left or select a quick preset profile, then click <strong>Run AI Risk Analysis</strong>.
+                    </p>
+                    <div class="idle-feature-tags">
+                        <span class="idle-tag">⚡ Instant Inference</span>
+                        <span class="idle-tag">🎯 Calibrated KNN</span>
+                        <span class="idle-tag">🔒 Client Private</span>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loadingState" class="result-loading-state" style="display: none;">
+                    <div class="loader-scanner">
+                        <div class="scanner-ring"></div>
+                        <div class="scanner-dot"></div>
+                    </div>
+                    <h3 class="loading-title">Processing Patient Vitals...</h3>
+                    <p class="loading-subtitle">Applying Standard Scaling & K-Nearest Neighbor Classification</p>
+                </div>
+
+                <!-- Active Result State -->
+                <div id="activeResultState" class="result-active-state" style="display: none;">
+                    <!-- Circular Risk Gauge Card -->
+                    <div class="gauge-card">
+                        <div class="gauge-wrapper">
+                            <svg class="gauge-svg" viewBox="0 0 200 200">
+                                <circle class="gauge-bg" cx="100" cy="100" r="80" stroke-width="14" fill="none"></circle>
+                                <circle class="gauge-fill" id="gaugeFill" cx="100" cy="100" r="80" stroke-width="14" fill="none"
+                                    stroke-dasharray="502.65" stroke-dashoffset="502.65" stroke-linecap="round"></circle>
+                            </svg>
+                            <div class="gauge-center-content">
+                                <span class="gauge-label">Diabetes Probability</span>
+                                <div class="gauge-value" id="probabilityDisplay">0.0%</div>
+                                <span class="gauge-sub" id="confidenceTier">Model Confidence</span>
+                            </div>
+                        </div>
+
+                        <!-- Risk Classification Pill -->
+                        <div class="risk-badge-wrap">
+                            <div class="risk-badge" id="riskBadge">
+                                <span class="badge-status-dot" id="riskStatusDot"></span>
+                                <span class="badge-text" id="riskStatusText">ANALYZING</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Biomarker Risk Impact Breakdown -->
+                    <div class="breakdown-card">
+                        <h4 class="breakdown-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="20" x2="18" y2="10"></line>
+                                <line x1="12" y1="20" x2="12" y2="4"></line>
+                                <line x1="6" y1="20" x2="6" y2="14"></line>
+                            </svg>
+                            Biomarker Risk Analysis Matrix
+                        </h4>
+                        <div class="breakdown-grid" id="biomarkerBreakdownGrid">
+                            <!-- Injected by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Clinical Recommendations -->
+                    <div class="recommendations-card" id="recommendationsCard">
+                        <div class="rec-header">
+                            <div class="rec-icon-badge" id="recIconBadge">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="rec-title" id="recTitle">Clinical Interpretation & Advice</h4>
+                                <span class="rec-caption">Evidence-informed preliminary guidelines</span>
+                            </div>
+                        </div>
+                        <ul class="rec-list" id="recList">
+                            <!-- Injected by JavaScript -->
+                        </ul>
+                    </div>
+
+                    <!-- Clinical Disclaimer & Actions -->
+                    <div class="result-actions-bar">
+                        <button type="button" class="btn-secondary" id="printReportBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                                <rect x="6" y="14" width="12" height="8"></rect>
+                            </svg>
+                            Print Clinical Report
+                        </button>
+                    </div>
+
+                    <p class="medical-disclaimer">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <strong>Clinical Advisory:</strong> This AI algorithm provides metabolic risk stratification for preliminary triage and screening. It does not replace definitive medical diagnosis or standardized HbA1c/OGTT laboratory testing.
+                    </p>
+                </div>
+
+                <!-- Error Display -->
+                <div id="errorState" class="result-error-state" style="display: none;">
+                    <div class="error-icon">⚠️</div>
+                    <h3 class="error-title">Evaluation Error</h3>
+                    <p class="error-desc" id="errorMessageText">Unable to complete prediction.</p>
+                    <button type="button" class="btn-secondary" id="retryBtn">Retry Analysis</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <span class="footer-brand">EndoScan AI</span>
+                    <span class="footer-copy">• K-Nearest Neighbors Classifier • PIMA Indians Diabetes Benchmark</span>
+                </div>
+                <div class="footer-right">
+                    <span class="secure-badge">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        Local Inference Architecture
+                    </span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Model Details & Clinical Info Modal -->
+    <div class="modal-backdrop" id="infoModal" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <div class="modal-icon">🤖</div>
+                    <h3 class="modal-title" id="modalTitle">Model Architecture & Clinical Information</h3>
+                </div>
+                <button type="button" class="modal-close-btn" id="closeInfoModalBtn" aria-label="Close modal">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="info-block">
+                    <h4>Algorithm Specifications</h4>
+                    <p>
+                        This system utilizes a calibrated <strong>K-Nearest Neighbors (KNN)</strong> classification algorithm trained on the standardized <strong>PIMA Indians Diabetes Database</strong>. Input parameters are normalized using <code>StandardScaler</code> prior to distance metric calculations to ensure uniform feature weighting.
+                    </p>
+                </div>
+                <div class="info-stats-grid">
+                    <div class="info-stat">
+                        <span class="stat-num">8</span>
+                        <span class="stat-name">Clinical Features</span>
+                    </div>
+                    <div class="info-stat">
+                        <span class="stat-num">k = 9</span>
+                        <span class="stat-name">Neighbor Consensus</span>
+                    </div>
+                    <div class="info-stat">
+                        <span class="stat-num">768</span>
+                        <span class="stat-name">Training Cohort</span>
+                    </div>
+                    <div class="info-stat">
+                        <span class="stat-num">Standard</span>
+                        <span class="stat-name">Z-Score Scaler</span>
+                    </div>
+                </div>
+                <div class="info-block">
+                    <h4>Feature Reference Guide</h4>
+                    <ul class="feature-guide-list">
+                        <li><strong>Glucose:</strong> 2-hour post-load plasma glucose concentration from an oral glucose tolerance test (mg/dL).</li>
+                        <li><strong>Blood Pressure:</strong> Diastolic blood pressure (mm Hg).</li>
+                        <li><strong>Skin Thickness:</strong> Triceps skinfold measurement estimating subcutaneous fat distribution (mm).</li>
+                        <li><strong>Insulin:</strong> 2-hour serum insulin concentration (µU/mL).</li>
+                        <li><strong>BMI:</strong> Body Mass Index calculated as weight in kg / (height in m)².</li>
+                        <li><strong>Diabetes Pedigree Function:</strong> Synthesis of family genetic diabetic history based on lineage degree.</li>
+                        <li><strong>Age:</strong> Chronological patient age in years.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-primary-small" id="closeModalActionBtn">Understood</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+    <!-- Script -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>
